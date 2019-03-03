@@ -1,0 +1,121 @@
+//Caleb Wagner G01055418
+//CS262, Lab Section 208
+//Project 1
+
+
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+
+
+void encrypt_decrypt(int key, char * crypt, char * infile, char * outfile)
+{ 
+  //initialize all used variables for encryption 
+  char ch;
+  char cr;
+  char p1;
+  int r=0; 
+  FILE *fin;
+  FILE *fout;
+
+  // set random number seed to my G#01055418
+  srandom(key);
+  
+  //open the files (in and out)
+  fin = fopen(infile,"r");
+  fout = fopen(outfile,"w");
+
+  //check if input file exists
+  if(fin == NULL)
+  { 
+    //if input file doesnt exist CRASH
+    printf("file '%s' does not exist\n", infile);
+    exit(1);
+  }
+  
+  //get the first char from the file
+  ch =fgetc(fin);
+
+  //while the next char isnt a End Of File Error
+  while( ch != EOF)
+  {
+    
+    //Generate random number %97 so that it is displayable 
+    r = random() % 97;
+
+    // change all displayable characters to range [0. . . 96]
+    if (ch=='\t') {p1 = 0;}
+    else if(ch=='\n'){p1=1;}
+    else {p1=ch-30;}
+    
+    //Encrypt
+    //lastly mod 97 so that we have the range of numbers we want
+    if(crypt[0] =='E')
+    {
+      cr = (p1 + r) %97;
+    }
+
+    //Decrypt
+    if(crypt[0]=='D')
+    {
+      cr = (p1 + 97 - r) % 97 ;
+    }
+     
+    
+
+    // c1 = (p1 + r) % 97 ; // modular addition
+    // // turn all output values into displayable characters
+    if (cr==0) {cr = '\t';}
+    else if (cr == 1) {cr='\n';}
+    else {cr = cr + 30;}
+    
+    //place the encrypted in output file
+    putc(cr,fout);
+    //putc('\n',fout);
+
+    //get next char, if it is an EOF then it will not run Loop again
+    ch =fgetc(fin);
+    
+  }
+
+  //close the file when they are done with ALWAYS
+  fclose(fin);
+  fclose(fout);
+
+}
+
+
+
+int main(int argc,char *argv[])
+{
+  if(argc<5)
+  {
+    printf("Not enough arguements given:\nWas given %d needed 4\n",argc-1);
+    exit(1);
+  }
+  
+
+  //initialize all the arguements from commandline
+  int inputkey;
+  char crypt[10];
+  char infile[20];
+  char outfile[20];
+
+  //sscanf the commandline arguements and place them in the correct variables
+  //for the ENCRYPT_DECRYPT function
+  sscanf(argv[1],"%d",&inputkey);
+  sscanf(argv[2],"%s",&crypt[0]);
+  sscanf(argv[3],"%s",&infile[0]);
+  sscanf(argv[4],"%s",&outfile[0]);
+ 
+  if ( (strcmp(crypt, "ENCRYPT"))&& (strcmp(crypt, "DECRYPT")) )
+  {
+    printf("not given 'ENCRYPT' or 'DECRYPT' parameter\n");
+    exit(1);
+  }
+
+
+  //call the function to encrypt or decrypt the given files
+  encrypt_decrypt(inputkey,crypt,&infile[0],&outfile[0]);
+  return(0);    
+}
